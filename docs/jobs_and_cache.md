@@ -220,6 +220,41 @@ Alternativas:
 
 Redis pode entrar depois, quando houver necessidade real.
 
+## 8.1 Workers
+
+O MVP pode começar sem worker separado enquanto houver apenas API interna e seed/manual sync.
+
+Workers devem ser adicionados quando existir necessidade real de executar tarefas fora do ciclo HTTP.
+
+Casos que justificam worker:
+
+- sincronizacao de providers externos;
+- polling de partidas ao vivo;
+- retry com backoff apos falhas de API externa;
+- jobs que podem demorar mais do que uma requisicao HTTP normal;
+- tarefas agendadas recorrentes;
+- processamento que nao deve bloquear resposta ao app mobile.
+
+Regra inicial:
+
+```txt
+API HTTP responde ao app mobile
+Worker executa sync, polling e retries
+Banco/cache conectam os dois
+```
+
+O primeiro worker deve ser introduzido junto com o primeiro provider real ou com o primeiro job recorrente.
+
+Antes disso, manter a base simples.
+
+Quando workers forem adicionados, documentar:
+
+- fila ou mecanismo usado;
+- frequencia de execucao;
+- estrategia de retry;
+- logs gravados em ProviderSyncLog;
+- impacto no banco e cache.
+
 ## 9. Controle de rate limit
 
 Cada provider deve respeitar limite de chamadas.

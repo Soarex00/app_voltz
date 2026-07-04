@@ -32,6 +32,20 @@ apps/api/
       utils/
 ```
 
+Quando workers forem necessarios, a estrutura esperada deve ficar separada da API HTTP:
+
+```txt
+apps/api/
+  src/
+    jobs/
+    workers/
+    providers/
+```
+
+Workers nao devem conter regra de normalizacao duplicada.
+
+Eles devem orquestrar jobs e chamar services/providers compartilhados.
+
 Novos dominios devem seguir o mesmo padrao:
 
 ```txt
@@ -156,4 +170,5 @@ Erros inesperados nao devem vazar detalhes sensiveis em producao.
 - Acesso ao banco fica em repositories.
 - Presenters devem proteger a resposta publica contra detalhes internos.
 - Providers externos nao devem ser chamados por rotas de usuario.
+- Workers devem ser usados quando sync, polling ou retry nao pertencerem ao ciclo HTTP.
 - Qualquer novo endpoint, tabela, provider ou job precisa atualizar a documentacao correspondente.
