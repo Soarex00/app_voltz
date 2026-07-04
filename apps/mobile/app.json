@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "App Voltz",
+    "slug": "app-voltz",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0b0f14"
+      }
+    }
+  }
+}

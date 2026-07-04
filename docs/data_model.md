@@ -49,9 +49,83 @@ created_at
 updated_at
 ```
 
-## 4. Tournament
+## 4. League
 
-Representa campeonato, liga, copa ou evento.
+Representa a competicao macro do provider.
+
+Exemplos:
+
+- Mid-Season Invitational
+- LCK
+- LRN
+
+Campos:
+
+```txt
+id
+external_id
+provider
+game_id
+name
+slug
+region
+image_url
+raw_data
+created_at
+updated_at
+```
+
+Relacionamentos:
+
+```txt
+League pertence a Game
+League possui muitas Series
+League possui muitos Tournaments
+League pode possuir muitas Matches
+```
+
+## 5. Serie
+
+Representa temporada, ano ou split dentro de uma liga.
+
+Exemplos:
+
+- 2026
+- Spring 2026
+- Split 2 2026
+
+Campos:
+
+```txt
+id
+external_id
+provider
+game_id
+league_id
+name
+full_name
+slug
+season
+year
+start_date
+end_date
+raw_data
+created_at
+updated_at
+```
+
+Relacionamentos:
+
+```txt
+Serie pertence a Game
+Serie pode pertencer a League
+Serie possui muitos Tournaments
+Serie pode possuir muitas Matches
+```
+
+## 6. Tournament
+
+Representa fase, copa, etapa ou evento dentro de uma serie.
 
 Observação após spike com PandaScore LoL:
 
@@ -83,10 +157,16 @@ id
 external_id
 provider
 game_id
+league_id
+serie_id
 name
 slug
 region
 season
+tier
+country
+has_bracket
+live_supported
 start_date
 end_date
 status
@@ -109,11 +189,13 @@ Relacionamentos:
 
 ```txt
 Tournament pertence a Game
+Tournament pode pertencer a League
+Tournament pode pertencer a Serie
 Tournament possui muitas Matches
 Tournament pode possuir muitos Teams
 ```
 
-## 5. Team
+## 7. Team
 
 Representa um time dentro de um jogo.
 
@@ -143,7 +225,7 @@ Team possui muitos Players
 Team participa de muitas Matches
 ```
 
-## 6. Player
+## 8. Player
 
 Representa jogador profissional.
 
@@ -172,7 +254,7 @@ Player pertence a Game
 Player pode pertencer a Team
 ```
 
-## 7. Match
+## 9. Match
 
 Representa uma partida.
 
@@ -183,11 +265,18 @@ id
 external_id
 provider
 game_id
+league_id
+serie_id
 tournament_id
 team_a_id
 team_b_id
+name
 start_time
+scheduled_at
+original_scheduled_at
 status
+match_type
+number_of_games
 score_a
 score_b
 winner_team_id
@@ -211,13 +300,15 @@ Relacionamentos:
 
 ```txt
 Match pertence a Game
-Match pertence a Tournament
+Match pode pertencer a League
+Match pode pertencer a Serie
+Match pode pertencer a Tournament
 Match possui Team A
 Match possui Team B
 Match pode possuir vencedor
 ```
 
-## 8. MatchGameDetail
+## 10. MatchGameDetail
 
 Representa detalhes específicos dentro de uma partida.
 
@@ -247,7 +338,7 @@ created_at
 updated_at
 ```
 
-## 9. LiveMatchState
+## 11. LiveMatchState
 
 Representa estado atual de uma partida ao vivo.
 
@@ -269,7 +360,35 @@ updated_at
 
 Este dado pode ser atualizado com frequência.
 
-## 10. User
+## 12. MatchStream
+
+Representa links de transmissao disponiveis para uma partida.
+
+Campos:
+
+```txt
+id
+match_id
+provider
+language
+is_main
+is_official
+raw_url
+embed_url
+raw_data
+created_at
+updated_at
+```
+
+Relacionamentos:
+
+```txt
+MatchStream pertence a Match
+```
+
+O app deve consumir `raw_url` ou `embed_url`, mas nunca depender de `raw_data`.
+
+## 13. User
 
 Representa usuário da plataforma.
 
@@ -286,7 +405,7 @@ updated_at
 
 Caso use Supabase/Auth.js/Clerk, esta tabela pode complementar a tabela de autenticação.
 
-## 11. UserFavorite
+## 14. UserFavorite
 
 Representa favoritos do usuário.
 
@@ -304,12 +423,13 @@ Tipos possíveis:
 
 ```txt
 game
+league
 team
 tournament
 player
 ```
 
-## 12. NotificationPreference
+## 15. NotificationPreference
 
 Representa preferências de notificação.
 
@@ -333,7 +453,7 @@ team_result
 tournament_start
 ```
 
-## 13. ProviderSyncLog
+## 16. ProviderSyncLog
 
 Registra execuções de sincronização com APIs externas.
 
@@ -360,7 +480,7 @@ partial
 running
 ```
 
-## 14. ProviderEntityMap
+## 17. ProviderEntityMap
 
 Mapeia entidades externas para entidades internas.
 
@@ -380,13 +500,15 @@ Tipos:
 
 ```txt
 game
+league
+serie
 tournament
 team
 player
 match
 ```
 
-## 15. Observações importantes
+## 18. Observações importantes
 
 O modelo deve aceitar crescimento.
 
@@ -398,6 +520,6 @@ Se uma estatística for específica de LoL, CS2 ou Valorant, avaliar se deve fic
 - tabela genérica;
 - tabela específica documentada.
 
-## 16. Regra obrigatória
+## 19. Regra obrigatória
 
 Toda nova tabela, campo importante ou relacionamento deve ser documentado neste arquivo antes da tarefa ser considerada finalizada.

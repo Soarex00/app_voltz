@@ -33,6 +33,7 @@ Arquivos principais:
 - architecture.md
 - business_rules.md
 - backend.md
+- mobile.md
 - data_model.md
 - api_integrations.md
 - providers.md

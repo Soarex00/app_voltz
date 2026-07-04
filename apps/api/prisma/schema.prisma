@@ -24,6 +24,7 @@ enum MatchStatus {
 
 enum FavoriteType {
   GAME
+  LEAGUE
   TEAM
   TOURNAMENT
   PLAYER
@@ -45,6 +46,8 @@ enum ProviderSyncStatus {
 
 enum ProviderEntityType {
   GAME
+  LEAGUE
+  SERIE
   TOURNAMENT
   TEAM
   PLAYER
@@ -57,6 +60,8 @@ model Game {
   slug        String       @unique
   imageUrl    String?      @map("image_url")
   isActive    Boolean      @default(true) @map("is_active")
+  leagues     League[]
+  series      Serie[]
   tournaments Tournament[]
   teams       Team[]
   players     Player[]
@@ -67,16 +72,74 @@ model Game {
   @@map("games")
 }
 
+model League {
+  id          String       @id @default(cuid())
+  externalId  String?      @map("external_id")
+  provider    String?
+  gameId      String       @map("game_id")
+  game        Game         @relation(fields: [gameId], references: [id])
+  name        String
+  slug        String
+  region      String?
+  imageUrl    String?      @map("image_url")
+  rawData     Json?        @map("raw_data")
+  series      Serie[]
+  tournaments Tournament[]
+  matches     Match[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@unique([provider, externalId])
+  @@unique([gameId, slug])
+  @@index([gameId])
+  @@map("leagues")
+}
+
+model Serie {
+  id          String       @id @default(cuid())
+  externalId  String?      @map("external_id")
+  provider    String?
+  gameId      String       @map("game_id")
+  game        Game         @relation(fields: [gameId], references: [id])
+  leagueId    String?      @map("league_id")
+  league      League?      @relation(fields: [leagueId], references: [id])
+  name        String?
+  fullName    String?      @map("full_name")
+  slug        String
+  season      String?
+  year        Int?
+  startDate   DateTime?    @map("start_date")
+  endDate     DateTime?    @map("end_date")
+  rawData     Json?        @map("raw_data")
+  tournaments Tournament[]
+  matches     Match[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@unique([provider, externalId])
+  @@unique([gameId, slug])
+  @@index([gameId, leagueId])
+  @@map("series")
+}
+
 model Tournament {
   id         String           @id @default(cuid())
   externalId String?          @map("external_id")
   provider   String?
   gameId     String           @map("game_id")
   game       Game             @relation(fields: [gameId], references: [id])
+  leagueId   String?          @map("league_id")
+  league     League?          @relation(fields: [leagueId], references: [id])
+  serieId    String?          @map("serie_id")
+  serie      Serie?           @relation(fields: [serieId], references: [id])
   name       String
   slug       String
   region     String?
   season     String?
+  tier       String?
+  country    String?
+  hasBracket Boolean?         @map("has_bracket")
+  liveSupported Boolean?      @map("live_supported")
   startDate  DateTime?        @map("start_date")
   endDate    DateTime?        @map("end_date")
   status     TournamentStatus @default(UPCOMING)
@@ -89,6 +152,8 @@ model Tournament {
 
   @@unique([provider, externalId])
   @@index([gameId, status])
+  @@index([leagueId])
+  @@index([serieId])
   @@map("tournaments")
 }
 
@@ -159,6 +224,7 @@ model Match {
   provider     String?
   gameId       String            @map("game_id")
   game         Game              @relation(fields: [gameId], references: [id])
+  name         String?
   tournamentId String?           @map("tournament_id")
   tournament   Tournament?       @relation(fields: [tournamentId], references: [id])
   teamAId      String?           @map("team_a_id")
@@ -171,9 +237,18 @@ model Match {
   scoreB       Int?              @map("score_b")
   winnerTeamId String?           @map("winner_team_id")
   winnerTeam   Team?             @relation("MatchWinner", fields: [winnerTeamId], references: [id])
+  matchType    String?           @map("match_type")
+  numberOfGames Int?             @map("number_of_games")
+  scheduledAt  DateTime?         @map("scheduled_at")
+  originalScheduledAt DateTime?  @map("original_scheduled_at")
+  leagueId     String?           @map("league_id")
+  league       League?           @relation(fields: [leagueId], references: [id])
+  serieId      String?           @map("serie_id")
+  serie        Serie?            @relation(fields: [serieId], references: [id])
   streamUrl    String?           @map("stream_url")
   rawData      Json?             @map("raw_data")
   gameDetails  MatchGameDetail[]
+  streams      MatchStream[]
   liveState    LiveMatchState?
   createdAt    DateTime          @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
@@ -181,6 +256,8 @@ model Match {
   @@unique([provider, externalId])
   @@index([gameId, status, startTime])
   @@index([tournamentId])
+  @@index([leagueId])
+  @@index([serieId])
   @@map("matches")
 }
 
@@ -220,6 +297,25 @@ model LiveMatchState {
   updatedAt          DateTime    @updatedAt @map("updated_at")
 
   @@map("live_match_states")
+}
+
+model MatchStream {
+  id         String   @id @default(cuid())
+  matchId    String   @map("match_id")
+  match      Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  provider   String?
+  language   String?
+  isMain     Boolean  @default(false) @map("is_main")
+  isOfficial Boolean  @default(false) @map("is_official")
+  rawUrl     String   @map("raw_url")
+  embedUrl   String?  @map("embed_url")
+  rawData    Json?    @map("raw_data")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([matchId, rawUrl])
+  @@index([matchId, isMain])
+  @@map("match_streams")
 }
 
 model User {

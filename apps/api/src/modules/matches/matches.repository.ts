@@ -1,4 +1,4 @@
-import type { MatchStatus } from "@prisma/client";
+import type { MatchStatus, Prisma } from "@prisma/client";
 
 import { prisma } from "../../shared/database/prisma.js";
 
@@ -9,11 +9,23 @@ type MatchFilters = {
 
 const matchInclude = {
   game: true,
+  league: true,
+  serie: true,
   tournament: true,
   teamA: true,
   teamB: true,
-  winnerTeam: true
-};
+  winnerTeam: true,
+  gameDetails: {
+    orderBy: { order: "asc" }
+  },
+  streams: {
+    orderBy: [{ isMain: "desc" }, { isOfficial: "desc" }, { language: "asc" }]
+  }
+} as const satisfies Prisma.MatchInclude;
+
+export type PersistedMatch = Prisma.MatchGetPayload<{
+  include: typeof matchInclude;
+}>;
 
 export class MatchesRepository {
   findMany(filters: MatchFilters = {}) {

@@ -7,8 +7,9 @@
   ],
   "scripts": {
     "dev:api": "npm run dev -w @app-voltz/api",
+    "dev:mobile": "npm run dev -w @app-voltz/mobile",
     "build": "npm run build -w @app-voltz/api",
-    "typecheck": "npm run typecheck -w @app-voltz/api",
+    "typecheck": "npm run typecheck -w @app-voltz/api && npm run typecheck -w @app-voltz/mobile",
     "prisma:generate": "npm run prisma:generate -w @app-voltz/api",
     "prisma:migrate": "npm run prisma:migrate -w @app-voltz/api",
     "prisma:seed": "npm run prisma:seed -w @app-voltz/api"

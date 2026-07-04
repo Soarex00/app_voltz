@@ -117,9 +117,15 @@ NODE_ENV
 API_PORT
 API_HOST
 APP_ORIGIN
+PANDASCORE_API_TOKEN
 ```
 
 Chaves de providers externos devem ser adicionadas apenas no backend.
+
+O `.env` fica na raiz do monorepo. Como a API roda com o cwd em `apps/api`
+(via workspace), `src/shared/config/env.ts` sobe os diretorios a partir do
+proprio arquivo ate achar o primeiro `.env`, garantindo que a raiz seja lida
+independente de onde o processo foi iniciado.
 
 ## 5. Endpoints iniciais
 
@@ -130,6 +136,8 @@ GET /games/:slug
 GET /matches
 GET /matches?status=scheduled&gameSlug=valorant
 GET /matches/live
+GET /spikes/lol/matches/today
+GET /spikes/lol/matches/today?date=2026-07-04
 ```
 
 Os status publicos da API devem seguir os valores documentados em minusculo:
@@ -170,5 +178,6 @@ Erros inesperados nao devem vazar detalhes sensiveis em producao.
 - Acesso ao banco fica em repositories.
 - Presenters devem proteger a resposta publica contra detalhes internos.
 - Providers externos nao devem ser chamados por rotas de usuario.
+- Rotas de spike podem chamar provider externo apenas em desenvolvimento e devem retornar payload filtrado.
 - Workers devem ser usados quando sync, polling ou retry nao pertencerem ao ciclo HTTP.
 - Qualquer novo endpoint, tabela, provider ou job precisa atualizar a documentacao correspondente.
