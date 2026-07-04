@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TournamentStatus {
+  UPCOMING
+  ONGOING
+  FINISHED
+  CANCELED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+  CANCELED
+}
+
+enum FavoriteType {
+  GAME
+  TEAM
+  TOURNAMENT
+  PLAYER
+}
+
+enum NotificationType {
+  MATCH_START
+  MATCH_FINISHED
+  TEAM_RESULT
+  TOURNAMENT_START
+}
+
+enum ProviderSyncStatus {
+  SUCCESS
+  FAILED
+  PARTIAL
+  RUNNING
+}
+
+enum ProviderEntityType {
+  GAME
+  TOURNAMENT
+  TEAM
+  PLAYER
+  MATCH
+}
+
+model Game {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  imageUrl    String?      @map("image_url")
+  isActive    Boolean      @default(true) @map("is_active")
+  tournaments Tournament[]
+  teams       Team[]
+  players     Player[]
+  matches     Match[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@map("games")
+}
+
+model Tournament {
+  id         String           @id @default(cuid())
+  externalId String?          @map("external_id")
+  provider   String?
+  gameId     String           @map("game_id")
+  game       Game             @relation(fields: [gameId], references: [id])
+  name       String
+  slug       String
+  region     String?
+  season     String?
+  startDate  DateTime?        @map("start_date")
+  endDate    DateTime?        @map("end_date")
+  status     TournamentStatus @default(UPCOMING)
+  imageUrl   String?          @map("image_url")
+  rawData    Json?            @map("raw_data")
+  matches    Match[]
+  teams      TournamentTeam[]
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+
+  @@unique([provider, externalId])
+  @@index([gameId, status])
+  @@map("tournaments")
+}
+
+model Team {
+  id            String           @id @default(cuid())
+  externalId    String?          @map("external_id")
+  provider      String?
+  gameId        String           @map("game_id")
+  game          Game             @relation(fields: [gameId], references: [id])
+  name          String
+  acronym       String?
+  slug          String
+  logoUrl       String?          @map("logo_url")
+  region        String?
+  country       String?
+  rawData       Json?            @map("raw_data")
+  players       Player[]
+  matchesAsA    Match[]          @relation("MatchTeamA")
+  matchesAsB    Match[]          @relation("MatchTeamB")
+  wonMatches    Match[]          @relation("MatchWinner")
+  tournaments   TournamentTeam[]
+  detailsWon    MatchGameDetail[] @relation("MatchGameDetailWinner")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@unique([gameId, slug])
+  @@unique([provider, externalId])
+  @@index([gameId])
+  @@map("teams")
+}
+
+model TournamentTeam {
+  tournamentId String     @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  teamId       String     @map("team_id")
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@id([tournamentId, teamId])
+  @@map("tournament_teams")
+}
+
+model Player {
+  id         String   @id @default(cuid())
+  externalId String?  @map("external_id")
+  provider   String?
+  gameId     String   @map("game_id")
+  game       Game     @relation(fields: [gameId], references: [id])
+  teamId     String?  @map("team_id")
+  team       Team?    @relation(fields: [teamId], references: [id])
+  nickname   String
+  realName   String?  @map("real_name")
+  role       String?
+  country    String?
+  imageUrl   String?  @map("image_url")
+  rawData    Json?    @map("raw_data")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([provider, externalId])
+  @@index([gameId, teamId])
+  @@map("players")
+}
+
+model Match {
+  id           String            @id @default(cuid())
+  externalId   String?           @map("external_id")
+  provider     String?
+  gameId       String            @map("game_id")
+  game         Game              @relation(fields: [gameId], references: [id])
+  tournamentId String?           @map("tournament_id")
+  tournament   Tournament?       @relation(fields: [tournamentId], references: [id])
+  teamAId      String?           @map("team_a_id")
+  teamA        Team?             @relation("MatchTeamA", fields: [teamAId], references: [id])
+  teamBId      String?           @map("team_b_id")
+  teamB        Team?             @relation("MatchTeamB", fields: [teamBId], references: [id])
+  startTime    DateTime          @map("start_time")
+  status       MatchStatus       @default(SCHEDULED)
+  scoreA       Int?              @map("score_a")
+  scoreB       Int?              @map("score_b")
+  winnerTeamId String?           @map("winner_team_id")
+  winnerTeam   Team?             @relation("MatchWinner", fields: [winnerTeamId], references: [id])
+  streamUrl    String?           @map("stream_url")
+  rawData      Json?             @map("raw_data")
+  gameDetails  MatchGameDetail[]
+  liveState    LiveMatchState?
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  @@unique([provider, externalId])
+  @@index([gameId, status, startTime])
+  @@index([tournamentId])
+  @@map("matches")
+}
+
+model MatchGameDetail {
+  id           String      @id @default(cuid())
+  matchId      String      @map("match_id")
+  match        Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  order        Int
+  mapName      String?     @map("map_name")
+  status       MatchStatus @default(SCHEDULED)
+  scoreA       Int?        @map("score_a")
+  scoreB       Int?        @map("score_b")
+  winnerTeamId String?     @map("winner_team_id")
+  winnerTeam   Team?       @relation("MatchGameDetailWinner", fields: [winnerTeamId], references: [id])
+  startedAt    DateTime?   @map("started_at")
+  finishedAt   DateTime?   @map("finished_at")
+  rawData      Json?       @map("raw_data")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@unique([matchId, order])
+  @@map("match_game_details")
+}
+
+model LiveMatchState {
+  id                 String      @id @default(cuid())
+  matchId            String      @unique @map("match_id")
+  match              Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  status             MatchStatus
+  currentPhase       String?     @map("current_phase")
+  currentMap         String?     @map("current_map")
+  currentScoreA      Int?        @map("current_score_a")
+  currentScoreB      Int?        @map("current_score_b")
+  lastProviderUpdate DateTime?   @map("last_provider_update")
+  rawData            Json?       @map("raw_data")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  @@map("live_match_states")
+}
+
+model User {
+  id                      String                   @id @default(cuid())
+  name                    String
+  email                   String                   @unique
+  avatarUrl               String?                  @map("avatar_url")
+  favorites               UserFavorite[]
+  notificationPreferences NotificationPreference[]
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model UserFavorite {
+  id            String       @id @default(cuid())
+  userId        String       @map("user_id")
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favoriteType  FavoriteType @map("favorite_type")
+  referenceId   String       @map("reference_id")
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@unique([userId, favoriteType, referenceId])
+  @@index([favoriteType, referenceId])
+  @@map("user_favorites")
+}
+
+model NotificationPreference {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  enabled   Boolean          @default(true)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  @@unique([userId, type])
+  @@map("notification_preferences")
+}
+
+model ProviderSyncLog {
+  id           String             @id @default(cuid())
+  provider     String
+  jobName      String             @map("job_name")
+  status       ProviderSyncStatus
+  startedAt    DateTime           @map("started_at")
+  finishedAt   DateTime?          @map("finished_at")
+  errorMessage String?            @map("error_message")
+  metadata     Json?
+  createdAt    DateTime           @default(now()) @map("created_at")
+
+  @@index([provider, jobName, status])
+  @@map("provider_sync_logs")
+}
+
+model ProviderEntityMap {
+  id         String             @id @default(cuid())
+  provider   String
+  externalId String             @map("external_id")
+  entityType ProviderEntityType @map("entity_type")
+  internalId String             @map("internal_id")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+
+  @@unique([provider, externalId, entityType])
+  @@index([entityType, internalId])
+  @@map("provider_entity_maps")
+}

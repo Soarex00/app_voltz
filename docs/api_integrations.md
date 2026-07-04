@@ -194,7 +194,18 @@ POST /favorites
 DELETE /favorites/:id
 ```
 
-O frontend consome apenas esses endpoints.
+O app mobile consome apenas esses endpoints.
+
+Endpoints iniciais implementados:
+
+```txt
+GET /health
+GET /games
+GET /games/:slug
+GET /matches
+GET /matches?status=scheduled&gameSlug=valorant
+GET /matches/live
+```
 
 ## 10. Segurança
 

@@ -65,46 +65,63 @@ O projeto deve seguir uma arquitetura modular, com separação clara entre:
 
 A IA deve evitar criar funcionalidades espalhadas sem módulo claro.
 
+## 5.1 Stack inicial do backend
+
+O backend do MVP usa:
+
+- Node.js com TypeScript;
+- Fastify para API HTTP;
+- Prisma como ORM;
+- PostgreSQL como banco principal;
+- Zod para validação;
+- Docker Compose para banco local.
+
+O app mobile deve consumir apenas essa API interna.
+
+A documentação operacional do backend fica em `docs/backend.md`.
+
 ## 6. Módulos principais
 
 Estrutura lógica esperada:
 
 ```txt
-src/
-  modules/
-    games/
-    tournaments/
-    matches/
-    teams/
-    players/
-    users/
-    favorites/
-    notifications/
-    live-data/
+apps/
+  api/
+    src/
+      modules/
+        games/
+        tournaments/
+        matches/
+        teams/
+        players/
+        users/
+        favorites/
+        notifications/
+        live-data/
 
-  providers/
-    grid/
-    pandascore/
-    hltv/
-    vlr/
+      providers/
+        grid/
+        pandascore/
+        hltv/
+        vlr/
 
-  jobs/
-    sync-matches/
-    sync-tournaments/
-    sync-teams/
-    sync-live-matches/
+      jobs/
+        sync-matches/
+        sync-tournaments/
+        sync-teams/
+        sync-live-matches/
 
-  cache/
-    live-matches/
-    tournaments/
-    teams/
+      cache/
+        live-matches/
+        tournaments/
+        teams/
 
-  shared/
-    database/
-    http/
-    errors/
-    utils/
-    types/
+      shared/
+        database/
+        http/
+        errors/
+        utils/
+        types/
 ```
 
 ## 7. Responsabilidades dos módulos
@@ -252,11 +269,13 @@ Uma funcionalidade só é considerada finalizada quando:
 
 ## Foco do Produto
 
-O produto será desenvolvido com foco principal em mobile.
+O produto será desenvolvido como app mobile.
 
-A experiência mobile tem prioridade sobre desktop.
+Não haverá frontend web como produto principal no MVP.
 
-O usuário deve conseguir acompanhar partidas, campeonatos e favoritos rapidamente pelo celular.
+A experiência deve ser pensada para uso em celular desde a primeira decisão de interface.
+
+O usuário deve conseguir acompanhar partidas, campeonatos e favoritos rapidamente pelo app.
 
 ## Prioridades de UX
 
@@ -272,13 +291,13 @@ O usuário deve conseguir acompanhar partidas, campeonatos e favoritos rapidamen
 ## Estratégia de plataforma
 
 Primeira versão:
-- Web responsivo mobile-first.
+- App mobile com React Native ou Expo.
 
 Possível evolução:
-- App mobile com React Native ou Expo.
+- Web ou painel administrativo apenas se houver necessidade clara.
 
 ## Regra para IA
 
-Toda tela criada deve ser pensada primeiro para celular.
+Toda tela criada deve ser pensada para app mobile.
 
-Desktop é adaptação posterior, não prioridade inicial.
+Web/desktop não devem guiar decisões de produto, layout ou navegação no MVP.

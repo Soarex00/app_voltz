@@ -1,0 +1,19 @@
+{
+  "name": "app-voltz",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @app-voltz/api",
+    "build": "npm run build -w @app-voltz/api",
+    "typecheck": "npm run typecheck -w @app-voltz/api",
+    "prisma:generate": "npm run prisma:generate -w @app-voltz/api",
+    "prisma:migrate": "npm run prisma:migrate -w @app-voltz/api",
+    "prisma:seed": "npm run prisma:seed -w @app-voltz/api"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

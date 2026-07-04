@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: app_voltz_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app_voltz
+      POSTGRES_PASSWORD: app_voltz
+      POSTGRES_DB: app_voltz
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_voltz -d app_voltz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

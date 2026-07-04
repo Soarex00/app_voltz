@@ -1,8 +1,8 @@
 # Codex Rules
 
-## Regra mobile-first
+## Regra app mobile
 
-Este projeto tem foco principal em mobile.
+Este projeto será um app mobile, não um frontend web.
 
 Antes de criar qualquer tela, componente ou fluxo, priorizar:
 
@@ -12,9 +12,9 @@ Antes de criar qualquer tela, componente ou fluxo, priorizar:
 - navegação simples;
 - performance;
 - carregamento rápido;
-- layout responsivo.
+- layout para app mobile.
 
-Nunca criar uma tela pensando primeiro em desktop.
+Nunca criar uma tela pensando em web ou desktop como plataforma principal.
 
 ## 1. Papel da IA
 
@@ -32,6 +32,7 @@ Arquivos principais:
 
 - architecture.md
 - business_rules.md
+- backend.md
 - data_model.md
 - api_integrations.md
 - providers.md

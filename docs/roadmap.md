@@ -26,6 +26,10 @@ Entregas:
 - roadmap.md;
 - estrutura modular inicial;
 - configuração de ambiente;
+- backend Fastify inicial;
+- schema Prisma inicial;
+- Docker Compose para PostgreSQL;
+- seed dos jogos do MVP;
 - padrão de commits e organização.
 
 Critério de conclusão:
@@ -50,7 +54,8 @@ Entregas:
 - resultados recentes mockados;
 - página de detalhes da partida;
 - página de time simples;
-- layout responsivo.
+- navegação por abas;
+- layout otimizado para app mobile.
 
 Critério de conclusão:
 
@@ -198,7 +203,6 @@ Possíveis entregas:
 - mais jogos;
 - mais providers;
 - notificações;
-- app mobile;
 - WebSocket;
 - estatísticas avançadas;
 - notícias;

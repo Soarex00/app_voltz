@@ -15,6 +15,18 @@ O banco deve armazenar dados normalizados, independentemente do provider externo
 - Evitar duplicação de entidades.
 - Usar slugs para URLs amigáveis.
 
+## 2.1 Implementação atual
+
+O modelo foi implementado inicialmente com Prisma e PostgreSQL em:
+
+```txt
+apps/api/prisma/schema.prisma
+```
+
+Os valores públicos da API devem continuar seguindo a documentação em minúsculo.
+
+Enums internos do banco podem usar convenções técnicas próprias, desde que presenters ou mappers não vazem esses detalhes para o app mobile.
+
 ## 3. Game
 
 Representa um jogo suportado pela plataforma.

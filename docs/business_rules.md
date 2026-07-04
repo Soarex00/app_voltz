@@ -2,13 +2,13 @@
 
 ## 1. Objetivo do produto
 
-O sistema permite que usuários acompanhem campeonatos de esports de vários jogos em uma única plataforma.
+O sistema permite que usuários acompanhem campeonatos de esports de vários jogos em um app mobile.
 
-O foco inicial é ser uma experiência parecida com HLTV, mas multijogos.
+O foco inicial é ser uma experiência parecida com HLTV, mas multijogos e otimizada para celular.
 
 ## 2. Público-alvo
 
-Usuários que acompanham mais de um cenário competitivo e não querem abrir vários sites diferentes para saber:
+Usuários que acompanham mais de um cenário competitivo e querem consultar rapidamente pelo celular:
 
 - quais partidas estão ao vivo;
 - quais partidas acontecerão;
