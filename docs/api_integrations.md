@@ -141,6 +141,8 @@ O payload bruto deve ser salvo em `raw_data` ou em amostras controladas de desen
 
 Mudanças no banco só devem ser feitas depois de comparar os dados reais com o modelo atual.
 
+Resultados de testes iniciais ficam em `docs/lol_api_spike.md`.
+
 ## 5. Tratamento de erros
 
 Se uma API externa falhar:
