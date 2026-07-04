@@ -53,6 +53,29 @@ updated_at
 
 Representa campeonato, liga, copa ou evento.
 
+Observação após spike com PandaScore LoL:
+
+A PandaScore separa `league`, `serie` e `tournament`.
+
+Antes da primeira integração real, avaliar se o modelo deve evoluir para:
+
+```txt
+League
+Serie
+Tournament
+```
+
+Relacionamento provável:
+
+```txt
+Game 1 -> N League
+League 1 -> N Serie
+Serie 1 -> N Tournament
+Tournament 1 -> N Match
+```
+
+Se o MVP decidir manter apenas `Tournament`, os dados de `league` e `serie` do provider devem permanecer preservados em `raw_data`.
+
 Campos:
 
 ```txt

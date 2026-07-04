@@ -16,28 +16,198 @@ Endpoint testado:
 GET https://api.pandascore.co/lol/matches?per_page=1
 ```
 
-Resultado:
+Resultado sem token:
 
 ```txt
 HTTP 403
 {"error":"Token is missing"}
 ```
 
-Conclusao:
-
-- PandaScore exige token mesmo para leitura simples.
-- E candidato forte para o primeiro provider real, mas precisamos criar uma chave gratuita.
-- Quando houver token, testar primeiro:
+Resultado com `PANDASCORE_API_TOKEN`:
 
 ```txt
 GET /lol/matches
-GET /lol/series
+GET /lol/matches/upcoming
+GET /lol/matches/running
 GET /lol/tournaments
 GET /lol/teams
 GET /lol/players
 ```
 
+Todos responderam `200`, exceto `running_matches`, que respondeu `200` com lista vazia no momento do teste.
+
+Conclusoes:
+
+- PandaScore exige token mesmo para leitura simples.
+- E candidato forte para o primeiro provider real.
+- O payload de LoL tem hierarquia mais detalhada do que nosso modelo inicial:
+
+```txt
+league
+  -> serie
+      -> tournament
+          -> match
+              -> games
+```
+
 O token deve ficar somente no backend, em variavel de ambiente.
+
+### Exemplo de partida
+
+Payload resumido de uma partida futura:
+
+```json
+{
+  "id": 1524761,
+  "name": "Upper bracket quarterfinal 1: BLG vs T1",
+  "status": "not_started",
+  "match_type": "best_of",
+  "number_of_games": 5,
+  "begin_at": "2026-07-04T08:00:00Z",
+  "league": {
+    "id": 300,
+    "name": "Mid-Season Invitational",
+    "slug": "league-of-legends-mid-invitational"
+  },
+  "serie": {
+    "id": 10676,
+    "full_name": "2026",
+    "season": null,
+    "year": 2026
+  },
+  "tournament": {
+    "id": 21176,
+    "name": "Playoffs",
+    "slug": "league-of-legends-mid-invitational-2026-playoffs"
+  },
+  "opponents": [
+    {
+      "type": "Team",
+      "id": 1566,
+      "name": "Bilibili Gaming",
+      "acronym": "BLG"
+    },
+    {
+      "type": "Team",
+      "id": 126061,
+      "name": "T1",
+      "acronym": "T1"
+    }
+  ],
+  "results": [
+    {
+      "score": 0,
+      "team_id": 1566
+    },
+    {
+      "score": 0,
+      "team_id": 126061
+    }
+  ],
+  "games": [
+    {
+      "id": 280059,
+      "position": 1,
+      "status": "not_started"
+    }
+  ]
+}
+```
+
+Campos importantes observados em partidas:
+
+```txt
+id
+name
+status
+match_type
+number_of_games
+begin_at
+scheduled_at
+original_scheduled_at
+end_at
+league
+serie
+tournament
+opponents
+results
+games
+streams_list
+live
+detailed_stats
+forfeit
+rescheduled
+winner_id
+winner_type
+```
+
+Status observados:
+
+```txt
+canceled
+not_started
+```
+
+Outros status devem ser mapeados durante a implementacao do provider.
+
+### Exemplo de tournament
+
+O endpoint de torneios retorna tambem `league`, `serie`, `matches`, `teams` e `expected_roster`.
+
+Campos relevantes:
+
+```txt
+id
+name
+type
+slug
+begin_at
+end_at
+country
+region
+tier
+league
+serie
+matches
+teams
+expected_roster
+live_supported
+detailed_stats
+```
+
+### Exemplo de team
+
+Campos relevantes:
+
+```txt
+id
+name
+location
+slug
+players
+acronym
+image_url
+dark_mode_image_url
+current_videogame
+```
+
+### Exemplo de player
+
+Campos relevantes:
+
+```txt
+id
+name
+role
+slug
+first_name
+last_name
+nationality
+image_url
+current_team
+current_videogame
+active
+```
 
 ## 2.2 Leaguepedia Cargo API
 
@@ -148,7 +318,7 @@ Conclusao:
 
 ## 3. Impacto no banco atual
 
-Com os dados testados ate agora, nao ha motivo para alterar o schema principal.
+Com o payload real da PandaScore, o nucleo do banco ainda esta correto, mas existe uma decisao importante antes da primeira migration estavel.
 
 O modelo atual ainda faz sentido para o nucleo:
 
@@ -166,11 +336,55 @@ provider_entity_maps
 
 O campo `raw_data` continua essencial para armazenar payload bruto durante o spike.
 
+### Ajuste recomendado antes de integrar PandaScore
+
+A PandaScore diferencia:
+
+```txt
+league: competicao macro, exemplo MSI, LCK
+serie: temporada/split, exemplo 2026, Spring 2026
+tournament: fase ou etapa, exemplo Playoffs, Swiss Stage
+```
+
+Nosso modelo atual tem apenas `Tournament`.
+
+Antes de implementar o provider real, avaliar adicionar:
+
+```txt
+leagues
+series
+tournaments
+```
+
+Relacionamento recomendado:
+
+```txt
+Game 1 -> N League
+League 1 -> N Serie
+Serie 1 -> N Tournament
+Tournament 1 -> N Match
+Match 1 -> N MatchGameDetail
+```
+
+Isso preserva melhor a estrutura da PandaScore sem misturar campeonato, temporada e fase em uma unica tabela.
+
+Se quisermos manter MVP mais simples, a alternativa e:
+
+```txt
+tournaments.provider = "pandascore"
+tournaments.external_id = PandaScore tournament.id
+tournaments.raw_data guarda league e serie
+```
+
+Essa alternativa e mais rapida, mas perde filtros e telas futuras por liga/temporada.
+
 ## 4. Possiveis lacunas futuras
 
 So criar estas tabelas se o payload real do provider justificar:
 
 ```txt
+leagues
+series
 game_assets
 lol_champions
 match_game_participants
