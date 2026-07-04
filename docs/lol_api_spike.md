@@ -407,15 +407,20 @@ Para o MVP inicial, calendario, partidas, times e resultados nao exigem essas ta
 
 ## 5. Proximo passo recomendado
 
-Criar uma chave gratuita do PandaScore e testar payload real de LoL.
+Implementar um sync experimental da PandaScore para LoL com cobertura completa.
 
-Com o token, implementar um script temporario de spike que:
+O objetivo nao e usar o metodo mais rapido.
 
-- chama endpoints de LoL;
-- salva amostras JSON em pasta ignorada pelo Git;
-- gera resumo dos campos encontrados;
-- compara com o schema Prisma atual;
-- nao altera banco automaticamente.
+O objetivo e trazer todos os campeonatos disponiveis e entender a estrutura completa.
+
+O sync deve:
+
+- percorrer todas as paginas de `leagues`, `series`, `tournaments`, `matches`, `teams` e `players` necessarias;
+- respeitar rate limit da PandaScore;
+- preservar `league -> serie -> tournament -> match -> games`;
+- salvar `raw_data`;
+- registrar progresso e falhas em ProviderSyncLog quando virar job real;
+- preferir cobertura completa e consistencia em vez de velocidade.
 
 Variavel sugerida:
 

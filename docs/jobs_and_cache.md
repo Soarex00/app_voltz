@@ -107,6 +107,18 @@ Frequência:
 a cada 6 horas
 ```
 
+Escopo:
+
+```txt
+buscar todos os campeonatos disponíveis no provider para o jogo alvo
+```
+
+No primeiro provider real, não usar apenas endpoints rápidos ou amostras.
+
+O job deve paginar até o fim dos dados disponíveis, respeitando rate limit e salvando progresso.
+
+Se o provider separar `league`, `serie` e `tournament`, o sync deve preservar essa hierarquia.
+
 ## sync-upcoming-matches
 
 Sincroniza próximas partidas.
@@ -266,6 +278,14 @@ Regras:
 - usar backoff em falhas;
 - reduzir frequência quando não houver partidas ao vivo;
 - registrar erros.
+
+Para sincronizações completas:
+
+- usar paginação explícita;
+- limitar concorrência;
+- salvar progresso por página quando necessário;
+- permitir retomada em caso de falha;
+- preferir consistência e cobertura completa em vez de velocidade.
 
 ## 10. Falhas
 

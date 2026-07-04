@@ -98,6 +98,19 @@ getTeams()
 getPlayers()
 ```
 
+Quando o objetivo for catálogo, o provider deve buscar todos os registros disponíveis no endpoint, usando paginação.
+
+Evitar métodos rápidos que retornem apenas subconjuntos quando a regra do produto exigir cobertura completa.
+
+Exemplo:
+
+```txt
+syncAllTournaments()
+  deve percorrer todas as páginas do provider
+  deve respeitar rate limit
+  deve registrar progresso e falhas
+```
+
 ### types
 
 Responsável por tipos específicos da API externa.
