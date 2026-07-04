@@ -90,16 +90,18 @@ Critério de conclusão:
 
 Objetivo:
 
-Integrar primeira fonte externa.
+Integrar primeira fonte externa começando por League of Legends.
 
 Candidatos:
 
-- PandaScore;
-- GRID Open Access;
+- GRID Open Access para LoL;
+- PandaScore para LoL;
 - outra fonte viável para MVP.
 
 Entregas:
 
+- spike de payload real de LoL;
+- documentação das respostas externas analisadas;
 - provider client;
 - mapper;
 - sync de campeonatos;

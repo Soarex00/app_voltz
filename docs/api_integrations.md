@@ -123,6 +123,24 @@ Toda integração deve:
 - salvar provider e external_id;
 - salvar raw_data quando possível.
 
+## 4.1 Primeiro spike de integração
+
+O primeiro teste real de integração deve ser feito apenas com League of Legends.
+
+Objetivo do spike:
+
+- entender como GRID ou outra API disponível representa LoL;
+- coletar payloads reais de campeonatos, partidas, times e placar ao vivo;
+- comparar o payload externo com o modelo interno atual;
+- validar se `matches`, `match_game_details` e `live_match_states` cobrem o caso real;
+- registrar lacunas antes de expandir para CS2 e Valorant.
+
+Durante o spike, não criar acoplamento direto entre o backend e o formato externo.
+
+O payload bruto deve ser salvo em `raw_data` ou em amostras controladas de desenvolvimento para análise.
+
+Mudanças no banco só devem ser feitas depois de comparar os dados reais com o modelo atual.
+
 ## 5. Tratamento de erros
 
 Se uma API externa falhar:

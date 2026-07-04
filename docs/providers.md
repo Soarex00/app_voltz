@@ -194,15 +194,27 @@ Regra inicial:
 
 ## 10. Provider principal por jogo
 
-Sugestão inicial:
+Estratégia inicial:
 
 ```txt
-League of Legends → GRID ou PandaScore
-Valorant → GRID ou PandaScore
-Counter-Strike 2 → PandaScore ou fonte específica
+1. Testar League of Legends primeiro.
+2. Avaliar GRID ou outra API viável para LoL.
+3. Mapear payload real para os modelos internos.
+4. Só depois expandir para Valorant e Counter-Strike 2.
 ```
 
 Essa decisão deve ser atualizada conforme os testes reais.
+
+O primeiro provider não deve tentar cobrir todos os jogos do MVP ao mesmo tempo.
+
+League of Legends será usado como caso de validação para entender:
+
+- estrutura de campeonatos;
+- estrutura de partidas;
+- formato de times;
+- formato de placar;
+- dados ao vivo disponíveis;
+- campos faltantes no modelo interno.
 
 ## 11. Logs
 
